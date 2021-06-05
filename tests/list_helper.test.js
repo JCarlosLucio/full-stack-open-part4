@@ -1,4 +1,4 @@
-const { dummy, totalLikes } = require('../utils/list_helper');
+const { dummy, totalLikes, favoriteBlog } = require('../utils/list_helper');
 
 const listWithOneBlog = [
   {
@@ -87,5 +87,19 @@ describe('total likes', () => {
 
   test('of a bigger list is calculated right', () => {
     expect(totalLikes(blogs)).toBe(36);
+  });
+});
+
+describe('favorite blog', () => {
+  test('of a list is the blog with the most likes', () => {
+    const expected = {
+      _id: '5a422b3a1b54a676234d17f9',
+      title: 'Canonical string reduction',
+      author: 'Edsger W. Dijkstra',
+      url: 'http://www.cs.utexas.edu/~EWD/transcriptions/EWD08xx/EWD808.html',
+      likes: 12,
+      __v: 0,
+    };
+    expect(favoriteBlog(blogs)).toEqual(expected);
   });
 });
