@@ -1,12 +1,16 @@
-const { dummy, totalLikes, favoriteBlog } = require('../utils/list_helper');
+const {
+  dummy,
+  totalLikes,
+  favoriteBlog,
+  mostBlogs,
+} = require('../utils/list_helper');
 
 const listWithOneBlog = [
   {
     _id: '5a422aa71b54a676234d17f8',
     title: 'Go To Statement Considered Harmful',
     author: 'Edsger W. Dijkstra',
-    url:
-      'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
+    url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
     likes: 5,
     __v: 0,
   },
@@ -25,8 +29,7 @@ const blogs = [
     _id: '5a422aa71b54a676234d17f8',
     title: 'Go To Statement Considered Harmful',
     author: 'Edsger W. Dijkstra',
-    url:
-      'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
+    url: 'http://www.u.arizona.edu/~rubinson/copyright_violations/Go_To_Considered_Harmful.html',
     likes: 5,
     __v: 0,
   },
@@ -42,8 +45,7 @@ const blogs = [
     _id: '5a422b891b54a676234d17fa',
     title: 'First class tests',
     author: 'Robert C. Martin',
-    url:
-      'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll',
+    url: 'http://blog.cleancoder.com/uncle-bob/2017/05/05/TestDefinitions.htmll',
     likes: 10,
     __v: 0,
   },
@@ -51,8 +53,7 @@ const blogs = [
     _id: '5a422ba71b54a676234d17fb',
     title: 'TDD harms architecture',
     author: 'Robert C. Martin',
-    url:
-      'http://blog.cleancoder.com/uncle-bob/2017/03/03/TDD-Harms-Architecture.html',
+    url: 'http://blog.cleancoder.com/uncle-bob/2017/03/03/TDD-Harms-Architecture.html',
     likes: 0,
     __v: 0,
   },
@@ -101,5 +102,23 @@ describe('favorite blog', () => {
       __v: 0,
     };
     expect(favoriteBlog(blogs)).toEqual(expected);
+  });
+});
+
+describe('most blogs', () => {
+  test('of a list with one blog is the only author', () => {
+    const expected = {
+      author: 'Edsger W. Dijkstra',
+      blogs: 1,
+    };
+    expect(mostBlogs(listWithOneBlog)).toEqual(expected);
+  });
+
+  test('of a list is the author with the most blogs', () => {
+    const expected = {
+      author: 'Robert C. Martin',
+      blogs: 3,
+    };
+    expect(mostBlogs(blogs)).toEqual(expected);
   });
 });
