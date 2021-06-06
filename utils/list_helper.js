@@ -23,4 +23,18 @@ const mostBlogs = (blogs) => {
   );
 };
 
-module.exports = { dummy, totalLikes, favoriteBlog, mostBlogs };
+const mostLikes = (blogs) => {
+  const authors = blogs.reduce((acc, val) => {
+    acc[val.author] = {
+      author: val.author,
+      likes: (acc[val.author]?.likes || 0) + val.likes,
+    };
+    return acc;
+  }, {});
+
+  return Object.values(authors).reduce((prev, curr) =>
+    prev.likes > curr.likes ? prev : curr
+  );
+};
+
+module.exports = { dummy, totalLikes, favoriteBlog, mostBlogs, mostLikes };
