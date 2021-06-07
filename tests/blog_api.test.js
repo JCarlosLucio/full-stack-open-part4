@@ -28,6 +28,13 @@ describe('blog api', () => {
     const response = await api.get('/api/blogs');
     expect(response.body).toHaveLength(initialBlogs.length);
   });
+
+  test('blog unique identifier is named id', async () => {
+    const response = await api.get('/api/blogs');
+
+    const blogToTest = response.body[0];
+    expect(blogToTest.id).toBeDefined();
+  });
 });
 
 afterAll(() => {
