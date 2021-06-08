@@ -74,6 +74,15 @@ describe('blog api', () => {
     const addedBlog = blogsAtEnd[blogsAtEnd.length - 1];
     expect(addedBlog.likes).toBe(0);
   });
+
+  test('a blog without title/url properties returns 400 Bad Request', async () => {
+    const newBlog = {
+      author: 'Tester',
+      likes: 4,
+    };
+
+    await api.post('/api/blogs').send(newBlog).expect(400);
+  });
 });
 
 afterAll(() => {

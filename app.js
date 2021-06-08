@@ -1,10 +1,12 @@
 const mongoose = require('mongoose');
 const cors = require('cors');
 const express = require('express');
+require('express-async-errors');
 const config = require('./utils/config');
 const logger = require('./utils/logger');
 const middleware = require('./utils/middleware');
 const blogsRouter = require('./controllers/blogs');
+const app = express();
 
 logger.info('connecting to DB');
 
@@ -22,7 +24,6 @@ mongoose
     logger.error('error connecting to mongoDB', error.message);
   });
 
-const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(middleware.requestLogger);
