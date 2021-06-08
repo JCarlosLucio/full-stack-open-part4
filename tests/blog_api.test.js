@@ -56,6 +56,24 @@ describe('blog api', () => {
     const titles = blogsAtEnd.map((blog) => blog.title);
     expect(titles).toContain('New blog for test');
   });
+
+  test('a blog without likes property defaults to 0', async () => {
+    const newBlog = {
+      title: 'No likes property',
+      author: 'Tester',
+      url: 'https://nolikestest.com',
+    };
+
+    await api
+      .post('/api/blogs')
+      .send(newBlog)
+      .expect(201)
+      .expect('Content-Type', /application\/json/);
+
+    const blogsAtEnd = await blogsInDb();
+    const addedBlog = blogsAtEnd[blogsAtEnd.length - 1];
+    expect(addedBlog.likes).toBe(0);
+  });
 });
 
 afterAll(() => {
