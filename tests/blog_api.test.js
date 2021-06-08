@@ -8,15 +8,10 @@ const Blog = require('../models/blog');
 
 beforeEach(async () => {
   await Blog.deleteMany({});
-
-  const blogPromises = initialBlogs.map((blog) => {
-    const blogObject = new Blog(blog);
-    return blogObject.save();
-  });
-  await Promise.all(blogPromises);
+  await Blog.insertMany(initialBlogs);
 });
 
-describe('blog api', () => {
+describe('when there are initially blogs saved', () => {
   test('blogs are returned as json', async () => {
     await api
       .get('/api/blogs')
@@ -35,7 +30,9 @@ describe('blog api', () => {
     const blogToTest = response.body[0];
     expect(blogToTest.id).toBeDefined();
   });
+});
 
+describe('addition of a new blog', () => {
   test('a blog can be added', async () => {
     const newBlog = {
       title: 'New blog for test',
@@ -82,6 +79,21 @@ describe('blog api', () => {
     };
 
     await api.post('/api/blogs').send(newBlog).expect(400);
+  });
+});
+
+describe('deletion of a blog', () => {
+  test('succeds with status 204 if id is valid', async () => {
+    const blogsAtStart = await blogsInDb();
+    const blogToDelete = blogsAtStart[0];
+
+    await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204);
+
+    const blogsAtEnd = await blogsInDb();
+    expect(blogsAtEnd).toHaveLength(initialBlogs.length - 1);
+
+    const titles = blogsAtEnd.map((blog) => blog.title);
+    expect(titles).not.toContain(blogToDelete.title);
   });
 });
 
