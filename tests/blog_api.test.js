@@ -82,6 +82,24 @@ describe('addition of a new blog', () => {
   });
 });
 
+describe('updating a blog', () => {
+  test('updating likes succeds with status 200 if id is valid', async () => {
+    const blogsAtStart = await blogsInDb();
+    const blogToUpdate = blogsAtStart[0];
+
+    const blogEdit = { ...blogToUpdate, likes: blogToUpdate.likes + 1 };
+
+    const result = await api
+      .put(`/api/blogs/${blogToUpdate.id}`)
+      .send(blogEdit)
+      .expect(200);
+
+    const blogsAtEnd = await blogsInDb();
+    expect(blogsAtEnd[0].likes).toBe(blogToUpdate.likes + 1);
+    expect(blogsAtEnd).toContainEqual(result.body);
+  });
+});
+
 describe('deletion of a blog', () => {
   test('succeds with status 204 if id is valid', async () => {
     const blogsAtStart = await blogsInDb();
