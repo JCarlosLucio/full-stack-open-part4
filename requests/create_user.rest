@@ -6,3 +6,29 @@ Content-Type: application/json
   "name": "Arto Hellas",
   "password": "1234"
 }
+###
+POST http://localhost:3003/api/users
+Content-Type: application/json
+
+{
+  "username": "yoshi",
+  "name": "Yoshi",
+  "password": "1"
+}
+###
+POST http://localhost:3003/api/users
+Content-Type: application/json
+
+{
+  "name": "Yoshi",
+  "password": "1234"
+}
+###
+POST http://localhost:3003/api/users
+Content-Type: application/json
+
+{
+  "username": "yo",
+  "name": "Yoshi",
+  "password": "1234"
+}

@@ -8,6 +8,8 @@ const api = supertest(app);
 const Blog = require('../models/blog');
 const User = require('../models/user');
 
+// ======== BLOG TESTS =========
+
 describe('when there are initially blogs saved', () => {
   beforeEach(async () => {
     await Blog.deleteMany({});
@@ -119,6 +121,8 @@ describe('when there are initially blogs saved', () => {
   });
 });
 
+// ======== USER TESTS =========
+
 describe('when there is initially one user', () => {
   beforeEach(async () => {
     await User.deleteMany({});
@@ -167,6 +171,104 @@ describe('when there is initially one user', () => {
       const usersAtEnd = await usersInDb();
 
       expect(usersAtEnd).toHaveLength(2);
+    });
+
+    test("fails if username missing w/ 400 and 'is required' ", async () => {
+      const newUser = {
+        name: 'Superuser',
+        password: '1234',
+      };
+
+      const result = await api
+        .post('/api/users')
+        .send(newUser)
+        .expect(400)
+        .expect('Content-Type', /application\/json/);
+
+      expect(result.body.error).toContain('`username` is required');
+
+      const usersAtEnd = await usersInDb();
+      expect(usersAtEnd).toHaveLength(1);
+    });
+
+    test("fails if username isn't long enough w/ 400 and 'is shorter' ", async () => {
+      const newUser = {
+        username: 'su',
+        name: 'Superuser',
+        password: '1234',
+      };
+
+      const result = await api
+        .post('/api/users')
+        .send(newUser)
+        .expect(400)
+        .expect('Content-Type', /application\/json/);
+
+      expect(result.body.error).toContain(
+        'is shorter than the minimum allowed length (3)'
+      );
+
+      const usersAtEnd = await usersInDb();
+      expect(usersAtEnd).toHaveLength(1);
+    });
+
+    test("fails if username is taken w/ 400 and 'to be unique' ", async () => {
+      const newUser = {
+        username: 'root',
+        name: 'Superuser',
+        password: '1234',
+      };
+
+      const result = await api
+        .post('/api/users')
+        .send(newUser)
+        .expect(400)
+        .expect('Content-Type', /application\/json/);
+
+      expect(result.body.error).toContain('`username` to be unique');
+
+      const usersAtEnd = await usersInDb();
+      expect(usersAtEnd).toHaveLength(1);
+    });
+
+    test("fails if password missing w/ 400 and 'is required' ", async () => {
+      const newUser = {
+        username: 'superuser',
+        name: 'Superuser',
+        password: '',
+      };
+
+      const result = await api
+        .post('/api/users')
+        .send(newUser)
+        .expect(400)
+        .expect('Content-Type', /application\/json/);
+
+      expect(result.body.error).toContain('`password` is required');
+
+      const usersAtEnd = await usersInDb();
+      expect(usersAtEnd).toHaveLength(1);
+    });
+
+    test("fails if password isn't long enough w/ 400 and 'is shorter' ", async () => {
+      const newUser = {
+        username: 'superuser',
+        name: 'Superuser',
+        password: '1',
+      };
+
+      const result = await api
+        .post('/api/users')
+        .send(newUser)
+        .expect(400)
+        .expect('Content-Type', /application\/json/);
+
+      expect(result.body.error).toContain(
+        '`password` needs to be at least 3 characters long'
+      );
+
+      const usersAtEnd = await usersInDb();
+      expect(usersAtEnd).toHaveLength(1);
     });
   });
 });
