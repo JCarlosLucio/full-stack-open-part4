@@ -13,7 +13,15 @@ const User = require('../models/user');
 describe('when there are initially blogs saved', () => {
   beforeEach(async () => {
     await Blog.deleteMany({});
-    await Blog.insertMany(initialBlogs);
+    await User.deleteMany({});
+
+    const passwordHash = await bcrypt.hash('test', 10);
+    const user = new User({ username: 'test', passwordHash });
+    await user.save();
+
+    await Blog.insertMany(
+      initialBlogs.map((blog) => ({ ...blog, user: user._id }))
+    );
   });
 
   describe('getting blogs', () => {
@@ -39,6 +47,12 @@ describe('when there are initially blogs saved', () => {
 
   describe('addition of a new blog', () => {
     test('a blog can be added', async () => {
+      const response = await api
+        .post('/api/login')
+        .send({ username: 'test', password: 'test' });
+
+      const token = `Bearer ${response.body.token}`;
+
       const newBlog = {
         title: 'New blog for test',
         author: 'Tester',
@@ -48,6 +62,7 @@ describe('when there are initially blogs saved', () => {
 
       await api
         .post('/api/blogs')
+        .set('Authorization', token)
         .send(newBlog)
         .expect(201)
         .expect('Content-Type', /application\/json/);
@@ -60,6 +75,12 @@ describe('when there are initially blogs saved', () => {
     });
 
     test('a blog without likes property defaults to 0', async () => {
+      const response = await api
+        .post('/api/login')
+        .send({ username: 'test', password: 'test' });
+
+      const token = `Bearer ${response.body.token}`;
+
       const newBlog = {
         title: 'No likes property',
         author: 'Tester',
@@ -68,6 +89,7 @@ describe('when there are initially blogs saved', () => {
 
       await api
         .post('/api/blogs')
+        .set('Authorization', token)
         .send(newBlog)
         .expect(201)
         .expect('Content-Type', /application\/json/);
@@ -78,12 +100,33 @@ describe('when there are initially blogs saved', () => {
     });
 
     test('a blog without title/url properties returns 400 Bad Request', async () => {
+      const response = await api
+        .post('/api/login')
+        .send({ username: 'test', password: 'test' });
+
+      const token = `Bearer ${response.body.token}`;
+
       const newBlog = {
         author: 'Tester',
         likes: 4,
       };
 
-      await api.post('/api/blogs').send(newBlog).expect(400);
+      await api
+        .post('/api/blogs')
+        .set('Authorization', token)
+        .send(newBlog)
+        .expect(400);
+    });
+
+    test('fails if token is missing w/ 401 Unauthorized', async () => {
+      const newBlog = {
+        title: 'New blog for test',
+        author: 'Tester',
+        url: 'https://newblogtest.com',
+        likes: 0,
+      };
+
+      await api.post('/api/blogs').send(newBlog).expect(401);
     });
   });
 
@@ -94,23 +137,28 @@ describe('when there are initially blogs saved', () => {
 
       const blogEdit = { ...blogToUpdate, likes: blogToUpdate.likes + 1 };
 
-      const result = await api
-        .put(`/api/blogs/${blogToUpdate.id}`)
-        .send(blogEdit)
-        .expect(200);
+      await api.put(`/api/blogs/${blogToUpdate.id}`).send(blogEdit).expect(200);
 
       const blogsAtEnd = await blogsInDb();
       expect(blogsAtEnd[0].likes).toBe(blogToUpdate.likes + 1);
-      expect(blogsAtEnd).toContainEqual(result.body);
     });
   });
 
   describe('deletion of a blog', () => {
     test('succeds with status 204 if id is valid', async () => {
+      const response = await api
+        .post('/api/login')
+        .send({ username: 'test', password: 'test' });
+
+      const token = `Bearer ${response.body.token}`;
+
       const blogsAtStart = await blogsInDb();
       const blogToDelete = blogsAtStart[0];
 
-      await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204);
+      await api
+        .delete(`/api/blogs/${blogToDelete.id}`)
+        .set('Authorization', token)
+        .expect(204);
 
       const blogsAtEnd = await blogsInDb();
       expect(blogsAtEnd).toHaveLength(initialBlogs.length - 1);
