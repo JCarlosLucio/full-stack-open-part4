@@ -9,7 +9,7 @@ blogsRouter.get('/', async (request, response) => {
 
 blogsRouter.post('/', userExtractor, async (request, response) => {
   const user = request.user; // comes from middleware userExtractor
-  const blog = new Blog({ ...request.body, user: user._id });
+  const blog = new Blog({ ...request.body, user: user });
 
   const savedBlog = await blog.save();
 
